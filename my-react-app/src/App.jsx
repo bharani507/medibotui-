@@ -1,0 +1,108 @@
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+
+/* ================= CONTEXT ================= */
+import { AuthProvider } from "./context/AuthContext";
+
+/* ================= NAVBAR ================= */
+import NavbarSwitcher from "./Components/FirstPage/NavbarSwitcher";
+
+/* ================= FOOTER ================= */
+import Footer from "./Components/ThirdSection/Footer";
+
+/* ================= AUTH & HOME ================= */
+import HeroPage from "./Pages/HereoPage";
+import Login from "./Components/FirstPage/LoginForm";
+import Signup from "./Components/FirstPage/SignUpPage";
+
+/* ================= DASHBOARD ================= */
+import Dashboard from "./Components/Dashboard/DashboardPage";
+
+/* ================= INDUSTRIES ================= */
+import Industry from "./Components/ThirdSection/Industry";
+import DrivingSchool from "./Components/IndustrySection/Driving/DrivingSchool";
+import DrivingPage from "./Components/IndustrySection/Driving/DrivingPage";
+import MedicalProduct from "./Components/IndustrySection/Medical/MedicalProduct";
+import MedicalPage from "./Components/IndustrySection/Medical/MedicalPage";
+import MediBotPage from "./Components/IndustrySection/Medical/MedicalBot";
+import RestaurantProduct from "./Components/IndustrySection/Restaurant/RestaurantProduct";
+import SalonsProduct from "./Components/IndustrySection/Saloon/SaloonProduct";
+import RetailStores from "./Components/IndustrySection/Retails/RetailStores";
+import HR from "./Components/IndustrySection/Hr/HrProduct";
+import MarketingAgencies from "./Components/MarketingAgencies/MarketingProduct";
+import AdminLegal from "./Components/IndustrySection/Admin/AdminProduct";
+import ITWebAgencies from "./Components/IndustrySection/IT/ItProduct";
+import Solopreneurs from "./Components/IndustrySection/Solopreners/SoloprenersProduct";
+import RealEstateAgents from "./Components/IndustrySection/RetailAgent/RetailAgentProduct";
+import EdTechProviders from "./Components/IndustrySection/Edtech/EdtechProduct";
+import ScrollToTop from "./Components/scrolltop";
+
+/* ================= FOOTER LOGIC ================= */
+function FooterController() {
+  const location = useLocation();
+
+  // ❌ Hide footer on dashboard & auth pages
+  if (
+    location.pathname.startsWith("/dashboard") ||
+    location.pathname === "/login" ||
+    location.pathname === "/signup"
+  ) {
+    return null;
+  }
+
+  return <Footer />;
+}
+
+/* ================= APP ================= */
+export default function App() {
+  return (
+    
+    <AuthProvider>
+      <Router>
+        <ScrollToTop/>
+        {/* 🔥 AUTO NAVBAR SWITCH */}
+        <NavbarSwitcher />
+
+        <Routes>
+          {/* PUBLIC */}
+          <Route path="/" element={<HeroPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* DASHBOARD */}
+          <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* INDUSTRIES */}
+          <Route path="/industry" element={<Industry />} />
+          <Route path="/driving" element={<DrivingSchool />} />
+          <Route path="/drivingpage" element={<DrivingPage />} />
+
+          <Route path="/MedicalProduct" element={<MedicalProduct />} />
+          <Route path="/MedicalPage" element={<MedicalPage />} />
+          <Route path="/MediBotPage" element={<MediBotPage />} />
+
+          <Route path="/restaurants" element={<RestaurantProduct />} />
+          <Route path="/salonProduct" element={<SalonsProduct />} />
+
+          <Route path="/retail" element={<RetailStores />} />
+          <Route path="/hr" element={<HR />} />
+          <Route path="/marketing" element={<MarketingAgencies />} />
+          <Route path="/admin" element={<AdminLegal />} />
+          <Route path="/it" element={<ITWebAgencies />} />
+
+          <Route path="/solopreneurs" element={<Solopreneurs />} />
+          <Route path="/real-estate" element={<RealEstateAgents />} />
+          <Route path="/edtech" element={<EdTechProviders />} />
+
+          {/* 404 */}
+          <Route
+            path="*"
+            element={<h1 className="p-10 text-xl">Page Not Found</h1>}
+          />
+        </Routes>
+
+        {/* FOOTER */}
+        <FooterController />
+      </Router>
+    </AuthProvider>
+  );
+}
