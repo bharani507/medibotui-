@@ -357,7 +357,7 @@ const handleSendToAI = async () => {
       data;
 
       setReport({
-  patient: patientName,
+  patient: ai?.patient_name || "",
   symptoms: ai?.symptoms || "",
   diagnosis: ai?.diagnosis || "",
   medication: ai?.medicines || "",
@@ -990,4 +990,4 @@ const handleSendToAI = async () => {
       )}
     </div>
   );
- }
+}

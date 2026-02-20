@@ -83,47 +83,57 @@ export default function ClinNoteAI() {
 
   // 🚀 Send to AI
   const handleSendToAI = async () => {
-  if (!audioBlob) return;
+  if (!audioBlob) {
+    alert("No audio recorded");
+    return;
+  }
 
   setSent(true);
   setStep(0);
   setFilled(false);
 
   try {
-    const formData = new FormData(); // ✅ correct variable
-    formData.append("audio", audioBlob, "recording.webm");
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "consultation.webm");
+    formData.append("patientName", patientName);
 
-    const res = await fetch("http://localhost:3001/api/medibot/voice", {
-      method: "POST",
-      body: formData,
+    const response = await fetch(
+      "http://localhost:5678/webhook/consultation",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    // Expecting n8n to return structured JSON
+    // Example:
+    // {
+    //   transcript: "...",
+    //   diagnosis: "...",
+    //   medication: "...",
+    //   symptoms: "...",
+    //   notes: "...",
+    //   followup: "..."
+    // }
+
+    setTranscriptText(data.transcript);
+
+    setReport({
+      diagnosis: data.diagnosis,
+      medication: data.medication,
+      symptoms: data.symptoms,
+      notes: data.notes,
+      followup: data.followup,
     });
 
-    const data = await res.json();
-    console.log("BACKEND RESPONSE:", data);
-
-    const ai =
-      Array.isArray(data) ? data[0] :
-      Array.isArray(data?.data) ? data.data[0] :
-      data;
-
-    const replyText = `
-      Patient: ${ai?.patient_name || "—"}
-      Symptoms: ${ai?.symptoms || "—"}
-      Medicines: ${ai?.medicines || "—"}
-      Doctor Notes: ${ai?.doctor_notes || "—"}
-      Follow-up Required: ${ai?.follow_up_required ? "Yes" : "No"}
-     `.trim();
-
-
-    setAiText(replyText);
     setFilled(true);
 
   } catch (err) {
-    console.error("AI send failed:", err);
-    alert("Failed to send audio to AI");
-  }
-};
-
+    console.error(err);
+    alert("Failed to send audio to n8n");
+  }};
 
 
   return (
