@@ -226,6 +226,7 @@ const chunksRef = React.useRef([]);
   const [step, setStep] = useState(0);
   const [filled, setFilled] = useState(false);
   const [aiText, setAiText] = useState("");
+  const [report, setReport] = useState(null);
 
 
   // UI bits
@@ -279,17 +280,7 @@ const chunksRef = React.useRef([]);
   const transcriptText = aiText;
 
 
-  const report = useMemo(() => {
-    if (!filled) return null;
-    return {
-      symptoms: "Persistent headache, fatigue (sample).",
-      diagnosis: "Tension-type headache (sample).",
-      medication: "Paracetamol 500mg SOS (sample).",
-      notes: "Hydration, sleep hygiene, stress management advised.",
-      followup: "Follow up in 2 weeks or earlier if symptoms worsen.",
-    };
-  }, [filled]);
-
+ 
   const canSendToAI = recordingTime > 0 && !sent;
 
 const handleStart = async () => {
@@ -364,6 +355,17 @@ const handleSendToAI = async () => {
       Array.isArray(data) ? data[0] :
       Array.isArray(data?.data) ? data.data[0] :
       data;
+
+      setReport({
+  patient: ai?.patient_name || "",
+  symptoms: ai?.symptoms || "",
+  diagnosis: ai?.diagnosis || "",
+  medication: ai?.medicines || "",
+  notes: ai?.doctor_notes || "",
+  followup: ai?.follow_up_required
+    ? "Follow-up required"
+    : "No follow-up required",
+});
 
     console.log("🔥 AI OBJECT:", ai);
 
@@ -798,63 +800,73 @@ const handleSendToAI = async () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="border-2 border-black rounded-md bg-white p-3">
-                  <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
-                    PATIENT
-                  </div>
-                  <div className="mt-1 text-sm font-extrabold text-black">
-                    {filled ? patientName : "—"}
-                  </div>
-                </div>
+              
+                {/* Row 1 - 3 Columns */}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                <div className="border-2 border-black rounded-md bg-white p-3">
-                  <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
-                    DIAGNOSIS
-                  </div>
-                  <div className="mt-1 text-sm text-black">
-                    {filled ? report?.diagnosis : "—"}
-                  </div>
-                </div>
+  <div className="border-2 border-black rounded-md bg-white p-3">
+    <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
+      PATIENT
+    </div>
+    <div className="mt-1 text-sm text-black">
+      {filled ? report?.patient || "—" : "—"}
+    </div>
+  </div>
 
-                <div className="border-2 border-black rounded-md bg-white p-3">
-                  <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
-                    MEDICATION
-                  </div>
-                  <div className="mt-1 text-sm text-black">
-                    {filled ? report?.medication : "—"}
-                  </div>
-                </div>
-              </div>
+  <div className="border-2 border-black rounded-md bg-white p-3">
+    <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
+      DIAGNOSIS
+    </div>
+    <div className="mt-1 text-sm text-black">
+      {filled ? report?.diagnosis : "—"}
+    </div>
+  </div>
 
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border-2 border-black rounded-md bg-white p-3">
-                  <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
-                    SYMPTOMS
-                  </div>
-                  <div className="mt-1 text-sm text-black">
-                    {filled ? report?.symptoms : "—"}
-                  </div>
-                </div>
+  <div className="border-2 border-black rounded-md bg-white p-3">
+    <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
+      MEDICATION
+    </div>
+    <div className="mt-1 text-sm text-black">
+      {filled ? report?.medication : "—"}
+    </div>
+  </div>
 
-                <div className="border-2 border-black rounded-md bg-white p-3">
-                  <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
-                    DOCTOR NOTES
-                  </div>
-                  <div className="mt-1 text-sm text-black">
-                    {filled ? report?.notes : "—"}
-                  </div>
-                </div>
+</div>
 
-                <div className="border-2 border-black rounded-md bg-white p-3 md:col-span-2">
-                  <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
-                    FOLLOW-UP INSTRUCTIONS
-                  </div>
-                  <div className="mt-1 text-sm text-black">
-                    {filled ? report?.followup : "—"}
-                  </div>
-                </div>
-              </div>
+
+{/* Row 2 - 2 Columns */}
+<div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+  <div className="border-2 border-black rounded-md bg-white p-3">
+    <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
+      SYMPTOMS
+    </div>
+    <div className="mt-1 text-sm text-black">
+      {filled ? report?.symptoms : "—"}
+    </div>
+  </div>
+
+  <div className="border-2 border-black rounded-md bg-white p-3">
+    <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
+      DOCTOR NOTES
+    </div>
+    <div className="mt-1 text-sm text-black">
+      {filled ? report?.notes : "—"}
+    </div>
+  </div>
+
+</div>
+
+
+{/* Row 3 - Full Width */}
+<div className="mt-4 border-2 border-black rounded-md bg-white p-3">
+  <div className="text-[11px] font-extrabold tracking-widest text-black/60 uppercase">
+    FOLLOW-UP INSTRUCTIONS
+  </div>
+  <div className="mt-1 text-sm text-black">
+    {filled ? report?.followup : "—"}
+  </div>
+</div>
 
               <div className="mt-5 flex justify-end">
                 <PrimaryButton onClick={handleSaveAndSend} disabled={!filled}>
