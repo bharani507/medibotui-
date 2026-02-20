@@ -15,8 +15,29 @@ export default function DrivingPage() {
 
       {/* ================= HERO ================= */}
       <section className="px-10 py-20 bg-gradient-to-r from-black via-slate-900 to-black text-white">
-        <p className="text-cyan-400 mb-4">
-          Home / Driving Schools / AutoBook
+        
+        {/* ===== Breadcrumb Navigation ===== */}
+        <p className="text-cyan-400 mb-4 flex gap-2 text-sm">
+          <span
+            onClick={() => navigate("/#industry")}
+            className="cursor-pointer hover:underline"
+          >
+            Home
+          </span>
+          /
+          <span
+            onClick={() => navigate("/driving")}
+            className="cursor-pointer hover:underline"
+          >
+            Driving Schools
+          </span>
+          /
+          <span
+            onClick={() => navigate("/drivingpage")}
+            className="font-semibold"
+          >
+            AutoBook
+          </span>
         </p>
 
         <div className="max-w-3xl">
@@ -137,12 +158,6 @@ export default function DrivingPage() {
         <div className="absolute bottom-0 left-0 w-full h-[3px] bg-cyan-400" />
 
         <div className="max-w-5xl mx-auto px-6 py-16 text-center">
-          <div className="flex justify-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-black text-3xl">
-              📅
-            </div>
-          </div>
-
           <h2 className="text-4xl md:text-5xl font-bold text-cyan-400 mb-6">
             Ready to Get Started?
           </h2>
@@ -151,18 +166,12 @@ export default function DrivingPage() {
             Join businesses saving hours every week with AI automation
           </p>
 
-          <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <button
-              onClick={() => navigate("/signup")}
-              className="bg-cyan-400 text-black px-10 py-4 font-semibold border-2 border-cyan-400 hover:bg-cyan-300 transition"
-            >
-              ▶ Get Started Now
-            </button>
-
-            <button className="px-10 py-4 font-semibold border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition">
-              Talk to Sales
-            </button>
-          </div>
+          <button
+            onClick={() => navigate("/signup")}
+            className="bg-cyan-400 text-black px-10 py-4 font-semibold border-2 border-cyan-400 hover:bg-cyan-300 transition"
+          >
+            ▶ Get Started Now
+          </button>
         </div>
       </section>
 

@@ -35,6 +35,18 @@ import Solopreneurs from "./Components/IndustrySection/Solopreners/SoloprenersPr
 import RealEstateAgents from "./Components/IndustrySection/RetailAgent/RetailAgentProduct";
 import EdTechProviders from "./Components/IndustrySection/Edtech/EdtechProduct";
 import ScrollToTop from "./Components/scrolltop";
+import StartTrial from "./Components/checkout/starttrial";
+import DoctorDashboard from "./Components/IndustrySection/Medical/DoctorDashboard";
+import Autopost from "./Components/AllProduct/Autopost";
+import Docgen from "./Components/AllProduct/Document";
+import Invoice from "./Components/AllProduct/Invoice";
+import LeadFlow from "./Components/AllProduct/LeadWorkFlow";
+import SalonBooking from "./Components/AllProduct/Saloon";
+import Slogan from "./Components/AllProduct/Slogan";
+import { TechStackPage } from "./Components/AllProduct/Techstack";
+import ClinNoteAI from "./Components/AllProduct/VoicetoText";
+import MainDoctor from "./Components/AllProduct/doctor/Maindoctor";
+
 
 /* ================= FOOTER LOGIC ================= */
 function FooterController() {
@@ -92,6 +104,22 @@ export default function App() {
           <Route path="/solopreneurs" element={<Solopreneurs />} />
           <Route path="/real-estate" element={<RealEstateAgents />} />
           <Route path="/edtech" element={<EdTechProviders />} />
+          <Route path="/starttrial" element={<StartTrial/>}/>
+          <Route path="/doctordashboard" element={<DoctorDashboard/>}/>
+
+          <Route path="/autopost" element={<Autopost/>}/>
+          <Route path="/document" element={<Docgen/>}/>
+          <Route path="/invoice" element={<Invoice/>}/>
+          <Route path="/leadworkflow" element={<LeadFlow/>}/>
+          <Route path="/saloon" element={<SalonBooking/>}/>
+          <Route path="/slogan" element={<Slogan/>}/>
+          <Route path="/techstack" element={<TechStackPage/>}/>
+          <Route path="/voicetotext" element={<ClinNoteAI/>}/>
+
+          
+          
+         <Route path="/maindoctor/*" element={<MainDoctor/>}/>
+
 
           {/* 404 */}
           <Route

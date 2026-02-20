@@ -1,42 +1,74 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import drivebotRoutes from "./drivebot.js";
+import medibotRoutes from "./medibot.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-/* -------------------- CORS -------------------- */
+/* -------------------- CORS (NODE 22 SAFE) -------------------- */
+const allowedOrigins = [
+  process.env.FRONTEND_ORIGIN,
+  "http://localhost:5173",
+  "http://localhost:5174",
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_ORIGIN,
+    origin: (origin, callback) => {
+      // allow server-to-server & tools like curl/postman
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(
+        new Error(`CORS blocked for origin: ${origin}`),
+        false
+      );
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// IMPORTANT: handle preflight
-app.options("*", cors());
-
 /* -------------------- BODY PARSER -------------------- */
-app.use(express.json({ limit: "20mb" }));
+app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 /* -------------------- ROOT -------------------- */
 app.get("/", (req, res) => {
-  res.json({ ok: true, message: "DriveBot Backend Running 🚗" });
+  res.json({
+    ok: true,
+    message: "🤖 AI Backend Running",
+    services: ["DriveBot", "MediBot"],
+    timestamp: new Date().toISOString(),
+  });
 });
 
-/* -------------------- DRIVEBOT ROUTES -------------------- */
+/* -------------------- ROUTES -------------------- */
 app.use("/api", drivebotRoutes);
+app.use("/api/medibot", medibotRoutes);
+
+/* -------------------- 404 HANDLER -------------------- */
+app.use((req, res) => {
+  res.status(404).json({
+    error: "Route not found",
+  });
+});
 
 /* -------------------- ERROR HANDLER -------------------- */
 app.use((err, req, res, next) => {
-  console.error("🔥 Server Error:", err);
-  res.status(500).json({
+  console.error("🔥 Server Error:", err.message);
+
+  res.status(err.status || 500).json({
+    success: false,
     error: err.message || "Internal Server Error",
   });
 });
@@ -44,14 +76,12 @@ app.use((err, req, res, next) => {
 /* -------------------- START SERVER -------------------- */
 app.listen(PORT, () => {
   console.log(`
-🚀 DriveBot Server Started
-────────────────────────
-📍 http://localhost:${PORT}
-🌐 Allowed Origin: ${process.env.FRONTEND_ORIGIN}
+🚀 AI Backend Server Started
+────────────────────────────
+📍 Backend: http://localhost:${PORT}
+🌐 Frontend Allowed: ${process.env.FRONTEND_ORIGIN}
 
-🩺 GET  /api/health
-💬 POST /api/chat
-🧪 POST /api/test
-🆕 POST /api/session/new
+🤖 DriveBot  → /api/*
+🎙️ MediBot  → /api/medibot/voice
 `);
 });
