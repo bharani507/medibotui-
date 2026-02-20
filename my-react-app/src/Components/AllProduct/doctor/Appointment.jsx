@@ -1844,10 +1844,18 @@ import {
   FiEdit2,
 } from "react-icons/fi";
 
+const WEBHOOKS = {
+  BOOK: "https://dharinisrisubramanian.n8n-wsk.com/webhook-test/autoschedulesolo",
+  RESCHEDULE: "https://dharinisrisubramanian.n8n-wsk.com/webhook-test/reschedule_aischedule",
+  DELETE: "https://dharinisrisubramanian.n8n-wsk.com/webhook-test/deleteanevent",
+  GET_ALL: "https://dharinisrisubramanian.n8n-wsk.com/webhook-test/getalldata-solo",
+};
+
 const PAGE_BG = "#FEFCE8";
 const CYAN = "#00B8DB";
 const YELLOW = "#F0B100";
 const BLACK = "#111111";
+
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -2140,6 +2148,32 @@ export default function Appointment() {
     },
   }));
 
+// ✅ 🔥 ADD WEBHOOK FETCH RIGHT HERE
+useEffect(() => {
+  const fetchAppointments = async () => {
+    try {
+      const res = await fetch(WEBHOOKS.GET_ALL);
+      const data = await res.json();
+
+      console.log("GET_ALL response:", data);
+
+      if (data.bookings) {
+        setBookingsByDate(data.bookings);
+      }
+
+      if (data.hours) {
+        setHoursByDate(data.hours);
+      }
+    } catch (err) {
+      console.error("Failed to fetch appointments:", err);
+    }
+  };
+
+  fetchAppointments();
+}, []);
+
+// 👇 Then continue with your existing code
+
   const TIME_OPTIONS = useMemo(() => {
     const opts = [];
     for (let m = 6 * 60; m <= 20 * 60; m += 15) {
@@ -2204,18 +2238,34 @@ export default function Appointment() {
       return { ...p, [day]: { ...p[day], ranges: left.length ? left : [{ start: "", end: "" }] } };
     });
 
-  const applyWeekToDates = () => {
-    setHoursByDate((prev) => {
-      const next = { ...prev };
-      for (let i = 0; i < 7; i++) {
-        const key = toKey(weekDates[i]);
-        const name = dayNames[i];
-        next[key] = { open: !!weekHours[name].open, ranges: weekHours[name].ranges.map((r) => ({ ...r })) };
-      }
-      return next;
-    });
-  };
+const applyWeekToDates = async () => {
+  const updatedHours = {};
 
+  for (let i = 0; i < 7; i++) {
+    const key = toKey(weekDates[i]);
+    const name = dayNames[i];
+
+    updatedHours[key] = {
+      open: !!weekHours[name].open,
+      ranges: weekHours[name].ranges.map((r) => ({ ...r })),
+    };
+  }
+
+  try {
+    await fetch(WEBHOOKS.RESCHEDULE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "UPDATE_HOURS",
+        hours: updatedHours,
+      }),
+    });
+
+    setHoursByDate((prev) => ({ ...prev, ...updatedHours }));
+  } catch (err) {
+    console.error("Failed to update hours:", err);
+  }
+};
   const dayHours = useMemo(
     () =>
       hoursByDate[selectedKey] || {
@@ -2252,32 +2302,53 @@ export default function Appointment() {
 
   const startEdit = (fromTime) => setEditing({ fromTime, toTime: fromTime });
 
-  const saveEdit = () => {
-    if (!editing?.fromTime || !editing?.toTime) return;
-    const from = editing.fromTime;
-    const to = editing.toTime;
 
-    if (from === to) {
-      setEditing(null);
-      return;
-    }
+const saveEdit = async () => {
+  if (!editing?.fromTime || !editing?.toTime) return;
 
+  const from = editing.fromTime;
+  const to = editing.toTime;
+
+  if (from === to) {
+    setEditing(null);
+    return;
+  }
+
+  const booking = dayBookings[from];
+  if (!booking) return;
+
+  if (dayBookings[to]) {
+    alert("That time is already booked. Choose another time.");
+    return;
+  }
+
+  try {
+    // 🔥 CALL YOUR RESCHEDULE WEBHOOK
+    await fetch(WEBHOOKS.RESCHEDULE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        date: selectedKey,
+        fromTime: from,
+        toTime: to,
+        booking,
+      }),
+    });
+
+    // ✅ Update frontend state
     setBookingsByDate((prev) => {
       const day = prev[selectedKey] || {};
-      const booking = day[from];
-      if (!booking) return prev;
-      if (day[to]) {
-        alert("That time is already booked. Choose another time.");
-        return prev;
-      }
       const nextDay = { ...day };
       delete nextDay[from];
-      nextDay[to] = { ...booking, bookedAt: new Date().toLocaleString(), via: booking.via || "MANUAL" };
+      nextDay[to] = { ...booking };
       return { ...prev, [selectedKey]: nextDay };
     });
 
     setEditing(null);
-  };
+  } catch (err) {
+    console.error("Reschedule failed:", err);
+  }
+};
 
   useEffect(() => {
     const allowed = new Set(daySlots);
